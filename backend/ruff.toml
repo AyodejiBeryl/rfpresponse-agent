@@ -1,0 +1,6 @@
+[lint]
+select = ["E", "F", "W"]
+ignore = ["E501"]  # Allow long lines
+
+[lint.per-file-ignores]
+"alembic/versions/*.py" = ["E402"]  # Alembic migration files have non-standard structure

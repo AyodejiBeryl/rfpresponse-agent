@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import io
 import re
@@ -77,7 +77,11 @@ def extract_requirements(text: str) -> List[RequirementItem]:
 
         lower = s.lower()
         if any(h in lower for h in REQUIREMENT_HINTS):
-            priority = "must" if (" shall " in f" {lower} " or " must " in f" {lower} ") else "should"
+            priority = (
+                "must"
+                if (" shall " in f" {lower} " or " must " in f" {lower} ")
+                else "should"
+            )
             requirements.append(
                 RequirementItem(
                     id=f"REQ-{req_counter:03d}",

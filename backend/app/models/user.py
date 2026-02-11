@@ -13,10 +13,14 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=True
+    )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(

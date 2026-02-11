@@ -34,7 +34,9 @@ async def update_org(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role not in ("owner", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
     if payload.name is not None:
         org.name = payload.name
     if payload.company_profile is not None:
@@ -51,11 +53,15 @@ async def list_members(
     org: Organization = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(User).where(User.org_id == org.id).order_by(User.created_at))
+    result = await db.execute(
+        select(User).where(User.org_id == org.id).order_by(User.created_at)
+    )
     return result.scalars().all()
 
 
-@router.post("/invites", response_model=InviteResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/invites", response_model=InviteResponse, status_code=status.HTTP_201_CREATED
+)
 async def send_invite(
     payload: InviteCreateRequest,
     org: Organization = Depends(get_current_org),
@@ -63,7 +69,9 @@ async def send_invite(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role not in ("owner", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
     invite = await create_invite(
         db=db,
         org_id=org.id,
@@ -82,12 +90,20 @@ async def remove_member(
     db: AsyncSession = Depends(get_db),
 ):
     if user.role not in ("owner", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
-    result = await db.execute(select(User).where(User.id == member_id, User.org_id == org.id))
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
+    result = await db.execute(
+        select(User).where(User.id == member_id, User.org_id == org.id)
+    )
     member = result.scalar_one_or_none()
     if not member:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Member not found"
+        )
     if member.role == "owner":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot remove owner")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot remove owner"
+        )
     member.is_active = False
     await db.commit()

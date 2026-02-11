@@ -25,7 +25,10 @@ def test_extract_requirements():
     )
     reqs = extract_requirements(text)
     assert len(reqs) >= 2
-    assert any("shall" in r.requirement_text.lower() or "must" in r.requirement_text.lower() for r in reqs)
+    assert any(
+        "shall" in r.requirement_text.lower() or "must" in r.requirement_text.lower()
+        for r in reqs
+    )
 
 
 def test_extract_requirements_no_keywords():
@@ -37,6 +40,7 @@ def test_extract_requirements_no_keywords():
 
 def test_compliance_matrix_met():
     from app.schemas.analysis import RequirementItem
+
     reqs = [
         RequirementItem(
             id="REQ-001",
@@ -57,6 +61,7 @@ def test_compliance_matrix_met():
 
 def test_compliance_matrix_missing():
     from app.schemas.analysis import RequirementItem
+
     reqs = [
         RequirementItem(
             id="REQ-001",
@@ -77,10 +82,18 @@ def test_compliance_matrix_missing():
 
 def test_build_gaps():
     from app.schemas.analysis import ComplianceRow
+
     matrix = [
         ComplianceRow(requirement_id="REQ-001", status="met", evidence="ok", notes=""),
-        ComplianceRow(requirement_id="REQ-002", status="missing", evidence="", notes="Needs input"),
-        ComplianceRow(requirement_id="REQ-003", status="partial", evidence="", notes="More detail needed"),
+        ComplianceRow(
+            requirement_id="REQ-002", status="missing", evidence="", notes="Needs input"
+        ),
+        ComplianceRow(
+            requirement_id="REQ-003",
+            status="partial",
+            evidence="",
+            notes="More detail needed",
+        ),
     ]
     gaps = build_gaps(matrix)
     assert len(gaps) == 2

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import os
 from collections import Counter
@@ -17,16 +17,22 @@ def _build_prompt(
     company_profile: str,
     past_performance: List[str],
 ) -> str:
-    req_preview = "\n".join(f"- {r.id}: {r.requirement_text}" for r in requirements[:40])
+    req_preview = "\n".join(
+        f"- {r.id}: {r.requirement_text}" for r in requirements[:40]
+    )
     gap_preview = "\n".join(f"- {m.requirement_id}: {m.status}" for m in matrix[:40])
-    pp = "\n".join(f"- {p}" for p in past_performance[:8]) if past_performance else "- None provided"
+    pp = (
+        "\n".join(f"- {p}" for p in past_performance[:8])
+        if past_performance
+        else "- None provided"
+    )
 
     return f"""
 You are an expert federal proposal writer.
 Write concise, compliant-first proposal draft sections using only provided context.
 Do not invent certifications, contracts, or legal claims.
 
-Company Name: {company_name or 'Not provided'}
+Company Name: {company_name or "Not provided"}
 Metadata: {metadata}
 
 Company Profile:
@@ -75,7 +81,7 @@ def _split_sections(markdown: str) -> Dict[str, str]:
             current = "management_plan"
             continue
         if current:
-            sections[current] += (raw_line + "\n")
+            sections[current] += raw_line + "\n"
 
     return {k: v.strip() for k, v in sections.items()}
 
@@ -88,7 +94,9 @@ def _generate_with_llm(prompt: str) -> str | None:
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             return None
-        client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1", timeout=timeout)
+        client = OpenAI(
+            api_key=api_key, base_url="https://api.groq.com/openai/v1", timeout=timeout
+        )
         model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     else:
         api_key = os.getenv("OPENAI_API_KEY")
@@ -101,7 +109,10 @@ def _generate_with_llm(prompt: str) -> str | None:
         model=model,
         temperature=0.2,
         messages=[
-            {"role": "system", "content": "You draft federal proposal responses with strict factual grounding."},
+            {
+                "role": "system",
+                "content": "You draft federal proposal responses with strict factual grounding.",
+            },
             {"role": "user", "content": prompt},
         ],
     )
@@ -130,7 +141,11 @@ def _fallback_sections(
         "Tailor this section to agency mission outcomes, staffing, and delivery timeline."
     )
 
-    pp = "\n".join(f"- {item}" for item in past_performance[:5]) if past_performance else "- Add comparable project references."
+    pp = (
+        "\n".join(f"- {item}" for item in past_performance[:5])
+        if past_performance
+        else "- Add comparable project references."
+    )
     past_performance_section = f"Relevant past performance:\n{pp}"
 
     management_plan = (
@@ -171,11 +186,15 @@ def build_draft_sections(
         llm_output = None
 
     if not llm_output:
-        return _fallback_sections(metadata, requirements, matrix, company_profile, past_performance)
+        return _fallback_sections(
+            metadata, requirements, matrix, company_profile, past_performance
+        )
 
     parsed = _split_sections(llm_output)
     if parsed.get("executive_summary") and parsed.get("technical_approach"):
         parsed["company_profile_reference"] = company_profile[:1800]
         return parsed
 
-    return _fallback_sections(metadata, requirements, matrix, company_profile, past_performance)
+    return _fallback_sections(
+        metadata, requirements, matrix, company_profile, past_performance
+    )

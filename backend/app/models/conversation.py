@@ -13,10 +13,14 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     section_key: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

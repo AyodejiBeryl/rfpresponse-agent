@@ -7,10 +7,11 @@ from typing import AsyncGenerator
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://rfp:devpassword@localhost:5432/rfp_test")
+os.environ.setdefault(
+    "DATABASE_URL", "postgresql+asyncpg://rfp:devpassword@localhost:5432/rfp_test"
+)
 os.environ.setdefault("SECRET_KEY", "test-secret")
 os.environ.setdefault("LLM_PROVIDER", "groq")
 os.environ.setdefault("GROQ_API_KEY", "test-key")

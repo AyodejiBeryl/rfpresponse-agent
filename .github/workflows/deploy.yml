@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
     steps:
       - uses: actions/checkout@v4
 

@@ -17,7 +17,9 @@ from app.services.exporter import export_csv, export_docx, export_markdown
 router = APIRouter(prefix="/api/v1/projects/{project_id}/export", tags=["export"])
 
 
-async def _load_analysis(db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID) -> AnalysisResponse:
+async def _load_analysis(
+    db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID
+) -> AnalysisResponse:
     result = await db.execute(
         select(Project).where(Project.id == project_id, Project.org_id == org_id)
     )
@@ -28,7 +30,7 @@ async def _load_analysis(db: AsyncSession, project_id: uuid.UUID, org_id: uuid.U
     sec_result = await db.execute(
         select(DraftSection).where(
             DraftSection.project_id == project.id,
-            DraftSection.is_current == True,
+            DraftSection.is_current.is_(True),
         )
     )
     sections = {s.section_key: s.content for s in sec_result.scalars().all()}

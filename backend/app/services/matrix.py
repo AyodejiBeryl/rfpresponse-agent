@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import re
 from typing import List, Optional
@@ -30,7 +30,11 @@ def _keywords(text: str) -> List[str]:
     return [w for w in words if w not in STOPWORDS][:12]
 
 
-def _text_block(company_profile: str, past_performance: List[str], capability_statement: Optional[str]) -> str:
+def _text_block(
+    company_profile: str,
+    past_performance: List[str],
+    capability_statement: Optional[str],
+) -> str:
     pp = "\n".join(past_performance)
     cap = capability_statement or ""
     return _normalize(f"{company_profile}\n{pp}\n{cap}")
@@ -52,7 +56,6 @@ def build_compliance_matrix(
 
     # Build a searchable text from knowledge chunks
     knowledge_text = ""
-    chunk_lookup: dict[str, list[str]] = {}  # req_id -> matching chunk excerpts
     if knowledge_chunks:
         knowledge_text = _normalize(
             " ".join(c.get("chunk_text", "") for c in knowledge_chunks)
@@ -68,7 +71,9 @@ def build_compliance_matrix(
         # Check knowledge base for additional matches
         kb_overlap_words = []
         if knowledge_text:
-            kb_overlap_words = [w for w in keys if w in knowledge_text and w not in overlap_words]
+            kb_overlap_words = [
+                w for w in keys if w in knowledge_text and w not in overlap_words
+            ]
 
         total_overlap = overlap + len(kb_overlap_words)
 
@@ -86,7 +91,9 @@ def build_compliance_matrix(
             notes = "Add proof points, metrics, and contract-specific tailoring."
         else:
             status = "missing"
-            evidence = "No clear support found in profile/capability/past performance context."
+            evidence = (
+                "No clear support found in profile/capability/past performance context."
+            )
             notes = "Needs SME input, artifacts, or teaming partner detail."
 
         matrix.append(
@@ -103,5 +110,7 @@ def build_compliance_matrix(
 
 
 def build_gaps(matrix: List[ComplianceRow]) -> List[str]:
-    gaps = [f"{row.requirement_id}: {row.notes}" for row in matrix if row.status != "met"]
+    gaps = [
+        f"{row.requirement_id}: {row.notes}" for row in matrix if row.status != "met"
+    ]
     return gaps or ["No major gaps auto-detected. Human validation still required."]

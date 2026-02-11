@@ -13,8 +13,12 @@ class KnowledgeDocument(Base):
     __tablename__ = "knowledge_documents"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
-    uploaded_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    uploaded_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id"), nullable=False
+    )
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     doc_type: Mapped[str] = mapped_column(String(50), nullable=False)
     original_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)

@@ -45,7 +45,9 @@ Rules:
 """
 
 
-def _build_context(project: Project, section_key: str | None, current_section: str | None) -> str:
+def _build_context(
+    project: Project, section_key: str | None, current_section: str | None
+) -> str:
     parts = [f"Solicitation metadata: {project.metadata_json}"]
     if project.company_profile_snapshot:
         parts.append(f"Company profile:\n{project.company_profile_snapshot[:3000]}")
@@ -86,7 +88,11 @@ async def list_conversations(
     return result.scalars().all()
 
 
-@router.post("/conversations", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/conversations",
+    response_model=ConversationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_conversation(
     project_id: uuid.UUID,
     payload: ConversationCreateRequest,
@@ -148,7 +154,7 @@ async def send_message(
             select(DraftSection).where(
                 DraftSection.project_id == project.id,
                 DraftSection.section_key == conv.section_key,
-                DraftSection.is_current == True,
+                DraftSection.is_current.is_(True),
             )
         )
         sec = sec_result.scalar_one_or_none()
@@ -185,7 +191,10 @@ async def send_message(
     history = history_result.scalars().all()
 
     llm_messages = [
-        {"role": "system", "content": SYSTEM_PROMPT + "\n\nProject context:\n" + context},
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT + "\n\nProject context:\n" + context,
+        },
     ]
     for msg in history:
         llm_messages.append({"role": msg.role, "content": msg.content})
@@ -217,7 +226,7 @@ async def send_message(
                 select(DraftSection).where(
                     DraftSection.project_id == project.id,
                     DraftSection.section_key == section_key,
-                    DraftSection.is_current == True,
+                    DraftSection.is_current.is_(True),
                 )
             )
             old_section = old_result.scalar_one_or_none()
@@ -238,12 +247,14 @@ async def send_message(
             assistant_msg.draft_section_id = new_section.id
 
         await db.commit()
-        yield f"event: done\ndata: {{}}\n\n"
+        yield "event: done\ndata: {}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
-async def _get_project(db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID) -> Project:
+async def _get_project(
+    db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID
+) -> Project:
     result = await db.execute(
         select(Project).where(Project.id == project_id, Project.org_id == org_id)
     )

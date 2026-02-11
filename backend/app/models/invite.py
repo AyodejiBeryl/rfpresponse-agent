@@ -13,13 +13,23 @@ class Invite(Base):
     __tablename__ = "invites"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
-    token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-    invited_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    token: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=True
+    )
+    invited_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id"), nullable=False
+    )
+    accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )

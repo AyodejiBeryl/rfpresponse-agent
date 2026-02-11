@@ -28,7 +28,9 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_access_token(user_id: uuid.UUID, org_id: uuid.UUID) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.access_token_expire_minutes
+    )
     payload = {
         "sub": str(user_id),
         "org": str(org_id),
@@ -39,7 +41,9 @@ def create_access_token(user_id: uuid.UUID, org_id: uuid.UUID) -> str:
 
 
 def create_refresh_token(user_id: uuid.UUID, org_id: uuid.UUID) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
+    expire = datetime.now(timezone.utc) + timedelta(
+        days=settings.refresh_token_expire_days
+    )
     payload = {
         "sub": str(user_id),
         "org": str(org_id),
@@ -74,7 +78,9 @@ async def register_org_and_user(
     if existing.scalar_one_or_none():
         raise ValueError("Email already registered")
 
-    org = Organization(name=org_name, slug=_slugify(org_name) + "-" + uuid.uuid4().hex[:6])
+    org = Organization(
+        name=org_name, slug=_slugify(org_name) + "-" + uuid.uuid4().hex[:6]
+    )
     db.add(org)
     await db.flush()
 
@@ -93,7 +99,9 @@ async def register_org_and_user(
 
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:
-    result = await db.execute(select(User).where(User.email == email, User.is_active == True))
+    result = await db.execute(
+        select(User).where(User.email == email, User.is_active.is_(True))
+    )
     user = result.scalar_one_or_none()
     if not user or not verify_password(password, user.password_hash):
         return None
@@ -114,7 +122,8 @@ async def create_invite(
         role=role,
         token=token,
         invited_by=invited_by,
-        expires_at=datetime.now(timezone.utc) + timedelta(days=settings.invite_expire_days),
+        expires_at=datetime.now(timezone.utc)
+        + timedelta(days=settings.invite_expire_days),
     )
     db.add(invite)
     await db.commit()
@@ -128,7 +137,9 @@ async def accept_invite(
     full_name: str,
     password: str,
 ) -> tuple[User, Invite]:
-    result = await db.execute(select(Invite).where(Invite.token == token, Invite.accepted_at == None))
+    result = await db.execute(
+        select(Invite).where(Invite.token == token, Invite.accepted_at.is_(None))
+    )
     invite = result.scalar_one_or_none()
     if not invite:
         raise ValueError("Invalid or expired invite")

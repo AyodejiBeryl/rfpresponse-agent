@@ -5,7 +5,9 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "postgresql+asyncpg://rfp:devpassword@localhost:5432/rfp_platform"
+    database_url: str = (
+        "postgresql+asyncpg://rfp:devpassword@localhost:5432/rfp_platform"
+    )
 
     # Auth
     secret_key: str = "change-me-in-production"

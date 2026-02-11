@@ -16,14 +16,15 @@ from app.services.auth_service import (
     accept_invite,
     authenticate_user,
     create_access_token,
-    create_refresh_token,
     register_org_and_user,
 )
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
     try:
         org, user = await register_org_and_user(
@@ -48,7 +49,9 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = await authenticate_user(db, payload.email, payload.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
 
     return TokenResponse(
         access_token=create_access_token(user.id, user.org_id),
@@ -58,8 +61,12 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     )
 
 
-@router.post("/invite/accept", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def invite_accept(payload: InviteAcceptRequest, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/invite/accept", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
+async def invite_accept(
+    payload: InviteAcceptRequest, db: AsyncSession = Depends(get_db)
+):
     try:
         user, invite = await accept_invite(
             db=db,

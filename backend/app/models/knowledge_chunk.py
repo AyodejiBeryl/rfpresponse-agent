@@ -13,7 +13,11 @@ class KnowledgeChunk(Base):
     __tablename__ = "knowledge_chunks"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("knowledge_documents.id", ondelete="CASCADE"), nullable=False, index=True)
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("knowledge_documents.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     chunk_text: Mapped[str] = mapped_column(Text, nullable=False)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import io
 import os
 import uuid
 from pathlib import Path
@@ -28,7 +27,9 @@ class StorageService:
             self._local_root = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/rfp-storage"))
             self._local_root.mkdir(parents=True, exist_ok=True)
 
-    def upload(self, data: bytes, key: str, content_type: str = "application/octet-stream") -> str:
+    def upload(
+        self, data: bytes, key: str, content_type: str = "application/octet-stream"
+    ) -> str:
         if self._use_s3:
             self._client.put_object(
                 Bucket=self._bucket,

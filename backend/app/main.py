@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import os
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-
-import logging
+from app.middleware.error_handler import ErrorHandlerMiddleware
+from app.middleware.request_logging import RequestLoggingMiddleware
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,9 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.middleware.error_handler import ErrorHandlerMiddleware
-from app.middleware.request_logging import RequestLoggingMiddleware
-
 app.add_middleware(ErrorHandlerMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 
@@ -55,10 +52,15 @@ async def health() -> dict:
     try:
         from app.database import async_session
         from sqlalchemy import text
+
         async with async_session() as session:
             await session.execute(text("SELECT 1"))
             db_ok = True
     except Exception:
         pass
     status = "ok" if db_ok else "degraded"
-    return {"status": status, "version": "2.0.0", "database": "connected" if db_ok else "unavailable"}
+    return {
+        "status": status,
+        "version": "2.0.0",
+        "database": "connected" if db_ok else "unavailable",
+    }

@@ -35,7 +35,9 @@ async def list_knowledge(
     return docs
 
 
-@router.post("", response_model=KnowledgeDocResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=KnowledgeDocResponse, status_code=status.HTTP_201_CREATED
+)
 async def upload_knowledge(
     file: UploadFile = File(...),
     title: str = Form(...),
@@ -45,7 +47,13 @@ async def upload_knowledge(
     db: AsyncSession = Depends(get_db),
     llm: LLMClient = Depends(get_llm_client),
 ):
-    if doc_type not in ("company_profile", "past_proposal", "capability_statement", "past_performance", "other"):
+    if doc_type not in (
+        "company_profile",
+        "past_proposal",
+        "capability_statement",
+        "past_performance",
+        "other",
+    ):
         raise HTTPException(status_code=400, detail="Invalid doc_type")
 
     data = await file.read()

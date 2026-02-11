@@ -152,7 +152,9 @@ async def create_project(
     return _build_project_response(project, analysis["draft_sections"])
 
 
-@router.post("/upload", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_project_from_file(
     file: UploadFile = File(...),
     title: str = Form(...),
@@ -175,7 +177,9 @@ async def create_project_from_file(
     elif suffix.endswith(".txt"):
         text = data.decode("utf-8", errors="ignore")
     else:
-        raise HTTPException(status_code=400, detail="Unsupported file type. Use PDF, DOCX, or TXT.")
+        raise HTTPException(
+            status_code=400, detail="Unsupported file type. Use PDF, DOCX, or TXT."
+        )
 
     past_performance: List[str] = []
     if past_performance_json:
@@ -184,7 +188,9 @@ async def create_project_from_file(
             if isinstance(parsed, list):
                 past_performance = [str(item) for item in parsed]
         except json.JSONDecodeError as exc:
-            raise HTTPException(status_code=400, detail=f"Invalid past_performance_json: {exc}")
+            raise HTTPException(
+                status_code=400, detail=f"Invalid past_performance_json: {exc}"
+            )
 
     profile = company_profile or org.company_profile or ""
     cap = capability_statement or org.capability_statement
@@ -282,26 +288,35 @@ async def delete_project(
     await db.commit()
 
 
-async def _get_project_or_404(db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID) -> Project:
+async def _get_project_or_404(
+    db: AsyncSession, project_id: uuid.UUID, org_id: uuid.UUID
+) -> Project:
     result = await db.execute(
         select(Project).where(Project.id == project_id, Project.org_id == org_id)
     )
     project = result.scalar_one_or_none()
     if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
     return project
 
 
-async def _get_current_sections(db: AsyncSession, project_id: uuid.UUID) -> dict[str, str]:
+async def _get_current_sections(
+    db: AsyncSession, project_id: uuid.UUID
+) -> dict[str, str]:
     result = await db.execute(
-        select(DraftSection)
-        .where(DraftSection.project_id == project_id, DraftSection.is_current == True)
+        select(DraftSection).where(
+            DraftSection.project_id == project_id, DraftSection.is_current.is_(True)
+        )
     )
     sections = result.scalars().all()
     return {s.section_key: s.content for s in sections}
 
 
-def _build_project_response(project: Project, draft_sections: dict[str, str]) -> ProjectResponse:
+def _build_project_response(
+    project: Project, draft_sections: dict[str, str]
+) -> ProjectResponse:
     return ProjectResponse(
         id=project.id,
         title=project.title,

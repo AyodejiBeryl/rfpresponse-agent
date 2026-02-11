@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import uuid
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,13 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.knowledge_chunk import KnowledgeChunk
 from app.models.knowledge_doc import KnowledgeDocument
 from app.services.llm_client import LLMClient
-from app.services.parser import extract_text_from_docx_bytes, extract_text_from_pdf_bytes
+from app.services.parser import (
+    extract_text_from_docx_bytes,
+    extract_text_from_pdf_bytes,
+)
 from app.services.storage import storage_service
 
 
 # ---------------------------------------------------------------------------
 # Text chunking
 # ---------------------------------------------------------------------------
+
 
 def _chunk_text(text: str, max_tokens: int = 500, overlap: int = 50) -> list[str]:
     """Split text into chunks on paragraph boundaries, with token-level overlap."""
@@ -52,6 +56,7 @@ def _chunk_text(text: str, max_tokens: int = 500, overlap: int = 50) -> list[str
 # ---------------------------------------------------------------------------
 # Embedding
 # ---------------------------------------------------------------------------
+
 
 def _embed_texts(texts: list[str], llm_client: LLMClient) -> list[list[float]]:
     """Generate embeddings using the OpenAI-compatible embeddings endpoint.
@@ -95,6 +100,7 @@ def _fallback_embeddings(texts: list[str], dim: int = 1536) -> list[list[float]]
 # ---------------------------------------------------------------------------
 # Document lifecycle
 # ---------------------------------------------------------------------------
+
 
 async def upload_and_index(
     db: AsyncSession,
@@ -153,9 +159,7 @@ async def upload_and_index(
 
             # Store embedding via raw SQL (pgvector)
             await db.execute(
-                text(
-                    "UPDATE knowledge_chunks SET embedding = :emb WHERE id = :id"
-                ),
+                text("UPDATE knowledge_chunks SET embedding = :emb WHERE id = :id"),
                 {"emb": str(embedding), "id": str(chunk.id)},
             )
 
@@ -228,7 +232,9 @@ async def get_relevant_context(
         return ""
 
     # Sort by similarity and take top results
-    sorted_chunks = sorted(all_chunks.values(), key=lambda x: x["similarity"], reverse=True)[:top_k]
+    sorted_chunks = sorted(
+        all_chunks.values(), key=lambda x: x["similarity"], reverse=True
+    )[:top_k]
 
     parts = ["Relevant knowledge from your organization's documents:"]
     for chunk in sorted_chunks:
@@ -258,9 +264,7 @@ async def delete_document(
         storage_service.delete(doc.file_s3_key)
 
     # Delete chunks
-    await db.execute(
-        delete(KnowledgeChunk).where(KnowledgeChunk.document_id == doc.id)
-    )
+    await db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.document_id == doc.id))
 
     # Delete document
     await db.delete(doc)

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import csv
 import io
@@ -14,7 +14,9 @@ def export_csv(rows: List[ComplianceRow]) -> str:
     writer = csv.writer(output)
     writer.writerow(["requirement_id", "status", "evidence", "owner", "notes"])
     for row in rows:
-        writer.writerow([row.requirement_id, row.status, row.evidence, row.owner or "", row.notes])
+        writer.writerow(
+            [row.requirement_id, row.status, row.evidence, row.owner or "", row.notes]
+        )
     return output.getvalue()
 
 
