@@ -184,12 +184,12 @@ async def search_knowledge(
         text("""
             SELECT kc.id, kc.chunk_text, kc.document_id,
                    kd.title as doc_title,
-                   1 - (kc.embedding <=> :embedding::vector) as similarity
+                   1 - (kc.embedding <=> CAST(:embedding AS vector)) as similarity
             FROM knowledge_chunks kc
             JOIN knowledge_documents kd ON kd.id = kc.document_id
-            WHERE kc.org_id = :org_id
+            WHERE kc.org_id = CAST(:org_id AS uuid)
               AND kc.embedding IS NOT NULL
-            ORDER BY kc.embedding <=> :embedding::vector
+            ORDER BY kc.embedding <=> CAST(:embedding AS vector)
             LIMIT :top_k
         """),
         {

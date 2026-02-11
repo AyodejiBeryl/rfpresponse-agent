@@ -106,7 +106,7 @@ async def create_project(
             top_k=10,
         )
     except Exception:
-        pass  # Knowledge base is optional; continue without it
+        await db.rollback()  # Reset poisoned transaction
 
     analysis = _run_analysis(
         solicitation_text=payload.solicitation_text,
@@ -202,7 +202,7 @@ async def create_project_from_file(
             db=db, org_id=org.id, query=text[:1000], llm_client=llm, top_k=10
         )
     except Exception:
-        pass
+        await db.rollback()  # Reset poisoned transaction
 
     analysis = _run_analysis(
         solicitation_text=text,

@@ -4,8 +4,8 @@ import re
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,17 +14,17 @@ from app.models.invite import Invite
 from app.models.organization import Organization
 from app.models.user import User
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 ALGORITHM = "HS256"
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pw_bytes = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(pw_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    pw_bytes = plain.encode("utf-8")[:72]
+    return bcrypt.checkpw(pw_bytes, hashed.encode("utf-8"))
 
 
 def create_access_token(user_id: uuid.UUID, org_id: uuid.UUID) -> str:
