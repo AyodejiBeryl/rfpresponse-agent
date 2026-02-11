@@ -40,7 +40,7 @@ export default function ProjectDetailPage() {
   const handleExport = async (format: string) => {
     const token = localStorage.getItem("access_token");
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/projects/${id}/export/${format}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/v1/projects/${id}/export/${format}`,
       { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(project) }
     );
     if (!res.ok) return;

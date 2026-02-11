@@ -35,3 +35,13 @@ pgdata/
 
 # Logs
 *.log
+backend_logs.txt
+
+# SSH keys
+*.pem
+
+# Temp files
+nul
+
+# Deploy secrets
+.env.prod
