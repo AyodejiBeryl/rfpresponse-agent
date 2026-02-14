@@ -64,3 +64,17 @@ async def health() -> dict:
         "version": "2.0.0",
         "database": "connected" if db_ok else "unavailable",
     }
+
+
+@app.get("/api/v1/rate-limit/status")
+async def rate_limit_status() -> dict:
+    """Get current rate limiter status (for monitoring)."""
+    from app.services.rate_limiter import get_rate_limiter
+
+    limiter = get_rate_limiter()
+    stats = limiter.get_stats()
+    return {
+        "status": "ok",
+        "rate_limiter": stats,
+        "message": f"{stats['requests_available']:.0f} requests available, {stats['tokens_available']:.0f} tokens available"
+    }
