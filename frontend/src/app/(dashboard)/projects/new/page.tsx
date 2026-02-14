@@ -4,6 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateProject, useUploadProject } from "@/hooks/useProjects";
 
+// RFP type options for the dropdown
+const RFP_TYPES = [
+  { value: "", label: "Auto-detect (recommended)" },
+  { value: "government_rfp", label: "Government RFP" },
+  { value: "government_rfi", label: "Government RFI" },
+  { value: "government_rfq", label: "Government RFQ" },
+  { value: "sources_sought", label: "Sources Sought" },
+  { value: "commercial_rfp", label: "Commercial RFP" },
+  { value: "commercial_rfq", label: "Commercial RFQ" },
+  { value: "vendor_application", label: "Vendor Application" },
+  { value: "grant", label: "Grant Application" },
+  { value: "custom", label: "Custom / Other" },
+];
+
 export default function NewProjectPage() {
   const router = useRouter();
   const createProject = useCreateProject();
@@ -11,6 +25,7 @@ export default function NewProjectPage() {
 
   const [mode, setMode] = useState<"text" | "file">("file");
   const [title, setTitle] = useState("");
+  const [rfpType, setRfpType] = useState("");
   const [solicitationText, setSolicitationText] = useState("");
   const [companyProfile, setCompanyProfile] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -30,6 +45,7 @@ export default function NewProjectPage() {
         formData.append("title", title);
         formData.append("company_profile", companyProfile);
         if (companyName) formData.append("company_name", companyName);
+        if (rfpType) formData.append("rfp_type", rfpType);
 
         const project = await uploadProject.mutateAsync(formData);
         router.push(`/projects/${project.id}`);
@@ -39,6 +55,7 @@ export default function NewProjectPage() {
           solicitation_text: solicitationText,
           company_profile: companyProfile,
           company_name: companyName || undefined,
+          rfp_type: rfpType || undefined,
         });
         router.push(`/projects/${project.id}`);
       }
@@ -66,6 +83,27 @@ export default function NewProjectPage() {
             className="input-field"
             placeholder="e.g. IT Support Services Response"
           />
+        </div>
+
+        {/* RFP Type Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            RFP Type
+          </label>
+          <select
+            value={rfpType}
+            onChange={(e) => setRfpType(e.target.value)}
+            className="input-field"
+          >
+            {RFP_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            Select the type of document for better extraction accuracy, or let the system auto-detect.
+          </p>
         </div>
 
         {/* Input mode toggle */}

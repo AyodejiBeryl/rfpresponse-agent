@@ -25,6 +25,7 @@ export function useCreateProject() {
       solicitation_text: string;
       company_profile: string;
       company_name?: string;
+      rfp_type?: string;
       past_performance?: string[];
       capability_statement?: string;
     }) => api.post<Project>("/api/v1/projects", data),

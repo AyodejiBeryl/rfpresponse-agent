@@ -23,6 +23,9 @@ class Project(Base):
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     status: Mapped[str] = mapped_column(String(30), default="analyzing")
 
+    # RFP type (government_rfp, commercial_rfp, grant, etc.)
+    rfp_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
     # RFP source
     solicitation_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     original_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -30,6 +33,7 @@ class Project(Base):
 
     # Analysis results
     metadata_json: Mapped[dict] = mapped_column(JSONB, default=dict)
+    detected_sections: Mapped[list] = mapped_column(JSONB, default=list)
     requirements: Mapped[list] = mapped_column(JSONB, default=list)
     compliance_matrix: Mapped[list] = mapped_column(JSONB, default=list)
     gaps: Mapped[list] = mapped_column(JSONB, default=list)

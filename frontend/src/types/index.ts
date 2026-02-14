@@ -31,11 +31,24 @@ export interface ComplianceRow {
   notes: string;
 }
 
+export interface ExtractedSection {
+  section_id: string;
+  section_title: string;
+  subsections: string[];
+  requirements: string[];
+  page_limit: number | null;
+  is_mandatory: boolean;
+  evaluation_weight: string | null;
+  order: number;
+}
+
 export interface Project {
   id: string;
   title: string;
   status: string;
+  rfp_type: string | null;
   metadata_json: Record<string, string>;
+  detected_sections: ExtractedSection[];
   requirements: RequirementItem[];
   compliance_matrix: ComplianceRow[];
   gaps: string[];
@@ -48,6 +61,7 @@ export interface ProjectListItem {
   id: string;
   title: string;
   status: string;
+  rfp_type: string | null;
   metadata_json: Record<string, string>;
   created_at: string;
 }
